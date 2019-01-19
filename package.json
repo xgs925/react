@@ -95,6 +95,7 @@
   },
   "scripts": {
     "build": "node ./scripts/rollup/build.js",
+    "my-build": "node ./scripts/rollup/my_build.js",
     "linc": "node ./scripts/tasks/linc.js",
     "lint": "node ./scripts/tasks/eslint.js",
     "lint-build": "node ./scripts/rollup/validate/index.js",

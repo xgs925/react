@@ -265,6 +265,7 @@ export function stopRequestCallbackTimer(
 }
 
 export function startWorkTimer(fiber: Fiber): void {
+  console.log('fn startWorkTimer(fiber: Fiber)');
   if (enableUserTimingAPI) {
     if (!supportsUserTiming || shouldIgnoreFiber(fiber)) {
       return;
@@ -355,6 +356,7 @@ export function stopPhaseTimer(): void {
 }
 
 export function startWorkLoopTimer(nextUnitOfWork: Fiber | null): void {
+  console.log('fn startWorkLoopTimer(nextUnitOfWork: Fiber | null)');
   if (enableUserTimingAPI) {
     currentFiber = nextUnitOfWork;
     if (!supportsUserTiming) {

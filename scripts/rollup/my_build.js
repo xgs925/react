@@ -151,13 +151,11 @@ function getBabelConfig(updateBabelOptions, bundleType, filename) {
   }
 }
 
-function getRollupOutputOptions(
-  outputPath,
-  format,
-  globals,
-  globalName,
-  bundleType
-) {
+function getRollupOutputOptions(outputPath,
+                                format,
+                                globals,
+                                globalName,
+                                bundleType) {
   const isProduction = isProductionBundleType(bundleType);
 
   return Object.assign(
@@ -282,24 +280,22 @@ function forbidFBJSImports() {
       if (/^fbjs\//.test(importee)) {
         throw new Error(
           `Don't import ${importee} (found in ${importer}). ` +
-            `Use the utilities in packages/shared/ instead.`
+          `Use the utilities in packages/shared/ instead.`
         );
       }
     },
   };
 }
 
-function getPlugins(
-  entry,
-  externals,
-  updateBabelOptions,
-  filename,
-  packageName,
-  bundleType,
-  globalName,
-  moduleType,
-  pureExternalModules
-) {
+function getPlugins(entry,
+                    externals,
+                    updateBabelOptions,
+                    filename,
+                    packageName,
+                    bundleType,
+                    globalName,
+                    moduleType,
+                    pureExternalModules) {
   const findAndRecordErrorCodes = extractErrorCodes(errorCodeOpts);
   const forks = Modules.getForks(bundleType, entry, moduleType);
   const isProduction = isProductionBundleType(bundleType);
@@ -359,18 +355,18 @@ function getPlugins(
     commonjs(),
     // Apply dead code elimination and/or minification.
     isProduction &&
-      closure(
-        Object.assign({}, closureOptions, {
-          // Don't let it create global variables in the browser.
-          // https://github.com/facebook/react/issues/10909
-          assume_function_wrapper: !isUMDBundle,
-          // Works because `google-closure-compiler-js` is forked in Yarn lockfile.
-          // We can remove this if GCC merges my PR:
-          // https://github.com/google/closure-compiler/pull/2707
-          // and then the compiled version is released via `google-closure-compiler-js`.
-          renaming: !shouldStayReadable,
-        })
-      ),
+    closure(
+      Object.assign({}, closureOptions, {
+        // Don't let it create global variables in the browser.
+        // https://github.com/facebook/react/issues/10909
+        assume_function_wrapper: !isUMDBundle,
+        // Works because `google-closure-compiler-js` is forked in Yarn lockfile.
+        // We can remove this if GCC merges my PR:
+        // https://github.com/google/closure-compiler/pull/2707
+        // and then the compiled version is released via `google-closure-compiler-js`.
+        renaming: !shouldStayReadable,
+      })
+    ),
     // HACK to work around the fact that Rollup isn't removing unused, pure-module imports.
     // Note that this plugin must be called after closure applies DCE.
     isProduction && stripUnusedImports(pureExternalModules),
@@ -504,9 +500,9 @@ async function createBundle(bundle, bundleType) {
     ),
     // We can't use getters in www.
     legacy:
-      bundleType === FB_WWW_DEV ||
-      bundleType === FB_WWW_PROD ||
-      bundleType === FB_WWW_PROFILING,
+    bundleType === FB_WWW_DEV ||
+    bundleType === FB_WWW_PROD ||
+    bundleType === FB_WWW_PROFILING,
   };
   const [mainOutputPath, ...otherOutputPaths] = Packaging.getBundleOutputPaths(
     bundleType,
@@ -549,10 +545,10 @@ function handleRollupWarning(warning) {
     if (typeof importSideEffects[externalModule] !== 'boolean') {
       throw new Error(
         'An external module "' +
-          externalModule +
-          '" is used in a DEV-only code path ' +
-          'but we do not know if it is safe to omit an unused require() to it in production. ' +
-          'Please add it to the `importSideEffects` list in `scripts/rollup/modules.js`.'
+        externalModule +
+        '" is used in a DEV-only code path ' +
+        'but we do not know if it is safe to omit an unused require() to it in production. ' +
+        'Please add it to the `importSideEffects` list in `scripts/rollup/modules.js`.'
       );
     }
     // Don't warn. We will remove side effectless require() in a later pass.
@@ -604,38 +600,37 @@ function handleRollupError(error) {
   }
 }
 
+const BUILD = ['react', 'react-dom'];
 async function buildEverything() {
   await asyncRimRaf('build'); // 删除上一次打包生成的包文件
-
   // Run them serially for better console output
   // and to avoid any potential race conditions.
   // eslint-disable-next-line no-for-of-loops/no-for-of-loops
+  Bundles.bundles = Bundles.bundles.filter((bundle) => {
+    return BUILD.includes(bundle.entry);
+  });
   for (const bundle of Bundles.bundles) {
-    await createBundle(bundle, UMD_DEV);
-    await createBundle(bundle, UMD_PROD);
-    await createBundle(bundle, UMD_PROFILING);
+    // await createBundle(bundle, UMD_DEV);
+    // await createBundle(bundle, UMD_PROD);
+    // await createBundle(bundle, UMD_PROFILING);
+
+    console.log(JSON.stringify(bundle));
     await createBundle(bundle, NODE_DEV);
-    await createBundle(bundle, NODE_PROD);
-    await createBundle(bundle, NODE_PROFILING);
-    await createBundle(bundle, FB_WWW_DEV);
-    await createBundle(bundle, FB_WWW_PROD);
-    await createBundle(bundle, FB_WWW_PROFILING);
-    await createBundle(bundle, RN_OSS_DEV);
-    await createBundle(bundle, RN_OSS_PROD);
-    await createBundle(bundle, RN_OSS_PROFILING);
-    await createBundle(bundle, RN_FB_DEV);
-    await createBundle(bundle, RN_FB_PROD);
-    await createBundle(bundle, RN_FB_PROFILING);
+    // await createBundle(bundle, NODE_PROD);
+
+    // await createBundle(bundle, NODE_PROFILING);
+    // await createBundle(bundle, FB_WWW_DEV);
+    // await createBundle(bundle, FB_WWW_PROD);
+    // await createBundle(bundle, FB_WWW_PROFILING);
+    // await createBundle(bundle, RN_OSS_DEV);
+    // await createBundle(bundle, RN_OSS_PROD);
+    // await createBundle(bundle, RN_OSS_PROFILING);
+    // await createBundle(bundle, RN_FB_DEV);
+    // await createBundle(bundle, RN_FB_PROD);
+    // await createBundle(bundle, RN_FB_PROFILING);
   }
 
-  await Packaging.copyAllShims();
   await Packaging.prepareNpmPackages();
-
-  if (syncFBSourcePath) {
-    await Sync.syncReactNative(syncFBSourcePath);
-  } else if (syncWWWPath) {
-    await Sync.syncReactDom('build/facebook-www', syncWWWPath);
-  }
 
   console.log(Stats.printResults());
   if (!forcePrettyOutput) {
@@ -645,9 +640,14 @@ async function buildEverything() {
   if (shouldExtractErrors) {
     console.warn(
       '\nWarning: this build was created with --extract-errors enabled.\n' +
-        'this will result in extremely slow builds and should only be\n' +
-        'used when the error map needs to be rebuilt.\n'
+      'this will result in extremely slow builds and should only be\n' +
+      'used when the error map needs to be rebuilt.\n'
     );
+  }
+
+  for (const dir of BUILD) {
+    // await asyncRimRaf(`../react-demo/node_modules/${dir}`);
+    await asyncCopyTo(`./build/node_modules/${dir}`, `../react-demo/node_modules/${dir}`)
   }
 }
 

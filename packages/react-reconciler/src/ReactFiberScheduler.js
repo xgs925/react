@@ -584,6 +584,7 @@ function flushPassiveEffects() {
 }
 
 function commitRoot(root: FiberRoot, finishedWork: Fiber): void {
+  console.log('fn commitRoot(root: FiberRoot, finishedWork: Fiber)');
   isWorking = true;
   isCommitting = true;
   startCommitTimer();
@@ -1123,6 +1124,7 @@ function completeUnitOfWork(workInProgress: Fiber): Fiber | null {
 }
 
 function performUnitOfWork(workInProgress: Fiber): Fiber | null {
+  console.log('fn performUnitOfWork(workInProgress: Fiber)');
   // The current, flushed, state of this fiber is the alternate.
   // Ideally nothing should rely on this, but relying on it here
   // means that we don't need an additional field on the work in
@@ -1180,11 +1182,13 @@ function performUnitOfWork(workInProgress: Fiber): Fiber | null {
   }
 
   ReactCurrentOwner.current = null;
-
+  console.log('next: ');
+  console.log('%o', next);
   return next;
 }
 
 function workLoop(isYieldy) {
+  console.log('fn workLoop(isYieldy)');
   if (!isYieldy) {
     // Flush work without yielding
     while (nextUnitOfWork !== null) {
@@ -1199,6 +1203,7 @@ function workLoop(isYieldy) {
 }
 
 function renderRoot(root: FiberRoot, isYieldy: boolean): void {
+  console.log('fn renderRoot(root: FiberRoot, isYieldy: boolean)');
   invariant(
     !isWorking,
     'renderRoot was called recursively. This error is likely caused ' +
@@ -1573,38 +1578,56 @@ function computeUniqueAsyncExpiration(): ExpirationTime {
   return lastUniqueAsyncExpiration;
 }
 
+// 计算fiber的到期时间
 function computeExpirationForFiber(currentTime: ExpirationTime, fiber: Fiber) {
+  console.log('fn computeExpirationForFiber');
   let expirationTime;
+  // NoWork: 0, // No work is pending.
+  // SynchronousPriority: 1, // 文本输入框
+  // TaskPriority: 2, // 当前调度正执行的任务
+  // AnimationPriority: 3, // 动画过渡
+  // HighPriority: 4, // 用户交互反馈
+  // LowPriority: 5, // 数据的更新
+  // OffscreenPriority: 6, // 预估未来需要显示的任务
   if (expirationContext !== NoWork) {
     // An explicit expiration context was set;
+    // 显示设置过期上下文
     expirationTime = expirationContext;
   } else if (isWorking) {
     if (isCommitting) {
       // Updates that occur during the commit phase should have sync priority
       // by default.
+      // 在提交阶段的更新任务
+      // 需要明确设置同步优先级（Sync Priority）
       expirationTime = Sync;
     } else {
       // Updates during the render phase should expire at the same time as
       // the work that is being rendered.
+      // 在渲染阶段发生的更新任务
+      // 需要设置为下一次渲染时间的到期时间优先级
       expirationTime = nextRenderExpirationTime;
     }
   } else {
     // No explicit expiration context was set, and we're not currently
     // performing work. Calculate a new expiration time.
+    // 不在任务执行阶段，需要计算新的过期时间
     if (fiber.mode & ConcurrentMode) {
       if (isBatchingInteractiveUpdates) {
         // This is an interactive update
         expirationTime = computeInteractiveExpiration(currentTime);
       } else {
+        // 异步更新
         // This is an async update
         expirationTime = computeAsyncExpiration(currentTime);
       }
       // If we're in the middle of rendering a tree, do not update at the same
       // expiration time that is already rendering.
+      // 如果我们正处于渲染树的中间, 请不要在已经呈现的相同过期时间内更新。
       if (nextRoot !== null && expirationTime === nextRenderExpirationTime) {
         expirationTime -= 1;
       }
     } else {
+      // 同步更新
       // This is a sync update
       expirationTime = Sync;
     }
@@ -1700,6 +1723,7 @@ function retryTimedOutBoundary(boundaryFiber: Fiber, thenable: Thenable) {
 }
 
 function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
+  console.log('fn scheduleWorkToRoot');
   recordScheduleUpdate();
 
   if (__DEV__) {
@@ -1786,7 +1810,10 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
 }
 
 function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
+  console.log('fn scheduleWork');
   const root = scheduleWorkToRoot(fiber, expirationTime);
+  console.log('root: ');
+  console.log('%o', root);
   if (root === null) {
     if (__DEV__) {
       switch (fiber.tag) {
@@ -2040,6 +2067,7 @@ function requestCurrentTime() {
 // requestWork is called by the scheduler whenever a root receives an update.
 // It's up to the renderer to call renderRoot at some point in the future.
 function requestWork(root: FiberRoot, expirationTime: ExpirationTime) {
+  console.log('fn requestWork(root: FiberRoot, expirationTime: ExpirationTime)');
   addRootToSchedule(root, expirationTime);
   if (isRendering) {
     // Prevent reentrancy. Remaining work will be scheduled at the end of
@@ -2068,6 +2096,7 @@ function requestWork(root: FiberRoot, expirationTime: ExpirationTime) {
 }
 
 function addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime) {
+  console.log('fn addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime)');
   // Add the root to the schedule.
   // Check if this root is already part of the schedule.
   if (root.nextScheduledRoot === null) {
@@ -2309,6 +2338,7 @@ function performWorkOnRoot(
   expirationTime: ExpirationTime,
   isYieldy: boolean,
 ) {
+  console.log('fn performWorkOnRoot');
   invariant(
     !isRendering,
     'performWorkOnRoot was called recursively. This error is likely caused ' +
@@ -2386,6 +2416,7 @@ function completeRoot(
   finishedWork: Fiber,
   expirationTime: ExpirationTime,
 ): void {
+  console.log('fn completeRoot');
   // Check if there's a batch that matches this expiration time.
   const firstBatch = root.firstBatch;
   if (firstBatch !== null && firstBatch._expirationTime >= expirationTime) {
@@ -2452,15 +2483,24 @@ function batchedUpdates<A, R>(fn: (a: A) => R, a: A): R {
 
 // TODO: Batching should be implemented at the renderer level, not inside
 // the reconciler.
+// 非批量更新操作
 function unbatchedUpdates<A, R>(fn: (a: A) => R, a: A): R {
+   console.log('unbatchedUpdates');
+  // 正在批量更新标识
+  // let isBatchingUpdates: boolean = false;
+  // 未批量更新标识
+  // let isUnbatchingUpdates: boolean = false;
+  // 如果正在批量更新
   if (isBatchingUpdates && !isUnbatchingUpdates) {
     isUnbatchingUpdates = true;
     try {
+      // 运行入参函数且返回执行结果
       return fn(a);
     } finally {
       isUnbatchingUpdates = false;
     }
   }
+  // 不管是否在批量更新流程中，都执行入参函数
   return fn(a);
 }
 

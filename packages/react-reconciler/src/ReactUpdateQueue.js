@@ -214,6 +214,7 @@ function appendUpdateToQueue<State>(
 }
 
 export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
+  console.log('fn enqueueUpdate');
   // Update queues are created lazily.
   const alternate = fiber.alternate;
   let queue1;
@@ -286,6 +287,10 @@ export function enqueueUpdate<State>(fiber: Fiber, update: Update<State>) {
       didWarnUpdateInsideUpdate = true;
     }
   }
+  console.log('queue1:');
+  console.log('%o', queue1);
+  console.log('queue2:');
+  console.log('%o', queue2);
 }
 
 export function enqueueCapturedUpdate<State>(

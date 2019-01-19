@@ -118,6 +118,7 @@ function scheduleRootUpdate(
   expirationTime: ExpirationTime,
   callback: ?Function,
 ) {
+  console.log('fn scheduleRootUpdate');
   if (__DEV__) {
     if (
       ReactCurrentFiberPhase === 'render' &&
@@ -140,7 +141,8 @@ function scheduleRootUpdate(
   // Caution: React DevTools currently depends on this property
   // being called "element".
   update.payload = {element};
-
+  console.log('update');
+  console.log('%o', update);
   callback = callback === undefined ? null : callback;
   if (callback !== null) {
     warningWithoutStack(
@@ -153,12 +155,15 @@ function scheduleRootUpdate(
   }
 
   flushPassiveEffects();
+  console.log('%o', current);
   enqueueUpdate(current, update);
+  console.log('%o', current);
   scheduleWork(current, expirationTime);
 
   return expirationTime;
 }
 
+// 根据渲染优先级更新dom
 export function updateContainerAtExpirationTime(
   element: ReactNodeList,
   container: OpaqueRoot,
@@ -166,6 +171,7 @@ export function updateContainerAtExpirationTime(
   expirationTime: ExpirationTime,
   callback: ?Function,
 ) {
+  console.log('fn updateContainerAtExpirationTime');
   // TODO: If this is a nested container, this won't be the root.
   const current = container.current;
 
@@ -181,13 +187,17 @@ export function updateContainerAtExpirationTime(
     }
   }
 
+  // 获得上下文对象 ?和父组件有关？
   const context = getContextForSubtree(parentComponent);
+  console.log('context：');
+  console.log('%o', context);
   if (container.context === null) {
     container.context = context;
   } else {
     container.pendingContext = context;
   }
 
+  // 下一步：schedule:安排, Root: 根, Update:更新
   return scheduleRootUpdate(current, element, expirationTime, callback);
 }
 
@@ -280,15 +290,26 @@ export function createContainer(
   return createFiberRoot(containerInfo, isConcurrent, hydrate);
 }
 
+// root.legacy_renderSubtreeIntoContainer和root.render两个方法，
+// 而这两个方法的核心就是DOMRenderer.updateContainer
 export function updateContainer(
-  element: ReactNodeList,
-  container: OpaqueRoot,
-  parentComponent: ?React$Component<any, any>,
-  callback: ?Function,
+  element: ReactNodeList, // ReactDOM.render函数的第一个参数，泛指各种虚拟DOM
+  container: OpaqueRoot, // root FiberRoot 对象
+  parentComponent: ?React$Component<any, any>, // parentComponent为之前的根组件，现在它为null
+  callback: ?Function, // 回调函数
 ): ExpirationTime {
+  // createFiberRoot中创建的fiber对象
+  console.log('fn updateContainer');
+  console.log('ReactNodeList');
+  console.log('%o', element);
+  console.log('container');
+  console.log('%o', container);
   const current = container.current;
   const currentTime = requestCurrentTime();
+  // 获取任务到期时间
   const expirationTime = computeExpirationForFiber(currentTime, current);
+  console.log('expirationTime');
+  console.log('%o', expirationTime);
   return updateContainerAtExpirationTime(
     element,
     container,
@@ -315,6 +336,7 @@ export {
 export function getPublicRootInstance(
   container: OpaqueRoot,
 ): React$Component<any, any> | PublicInstance | null {
+  // 获取fiber实例
   const containerFiber = container.current;
   if (!containerFiber.child) {
     return null;

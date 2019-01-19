@@ -304,10 +304,16 @@ function FiberNode(
 //    is faster.
 // 5) It should be easy to port this to a C struct and keep a C implementation
 //    compatible.
+
+// createFiberFromElement：type为类，无状态函数，元素标签名
+// createFiberFromFragment：type为React.Fragment
+// createFiberFromText：在JSX中表现为字符串，数字
+// createFiberFromPortal：用于 createPortal
+// createFiberRoot：用于ReactDOM.render的根节点
 const createFiber = function(
-  tag: WorkTag,
-  pendingProps: mixed,
-  key: null | string,
+  tag: WorkTag, // 标记 fiber 类型
+  pendingProps: mixed, // 当前处理过程中的组件props对象
+  key: null | string, // 调和阶段，标识fiber，以检测是否可重用该fiber实例
   mode: TypeOfMode,
 ): Fiber {
   // $FlowFixMe: the shapes are exact here but Flow doesn't like constructors
@@ -418,6 +424,7 @@ export function createWorkInProgress(
   return workInProgress;
 }
 
+// 返回一个初始根组件对应的fiber实例
 export function createHostRootFiber(isConcurrent: boolean): Fiber {
   let mode = isConcurrent ? ConcurrentMode | StrictMode : NoContext;
 
@@ -428,6 +435,7 @@ export function createHostRootFiber(isConcurrent: boolean): Fiber {
     mode |= ProfileMode;
   }
 
+  // 创建 Fiber 实例
   return createFiber(HostRoot, null, null, mode);
 }
 
