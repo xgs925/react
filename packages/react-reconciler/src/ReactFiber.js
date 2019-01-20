@@ -218,6 +218,16 @@ function FiberNode(
   key: null | string,
   mode: TypeOfMode,
 ) {
+  console.log('fn FiberNode');
+
+  console.log('tag');
+  console.log('%o', tag);
+  console.log('pendingProps');
+  console.log('%o', pendingProps);
+  console.log('key');
+  console.log('%o', key);
+  console.log('mode');
+  console.log('%o', mode);
   // Instance
   this.tag = tag;
   this.key = key;

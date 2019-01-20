@@ -40,8 +40,9 @@
         "webpack-merge": "^4.2.1"
     },
     "dependencies": {
-        "@sogou/mergeclass": "0.0.2",
         "history": "^4.7.2",
+        "react": "^16.7.0",
+        "react-dom": "^16.7.0",
         "react-router-dom": "^4.3.1"
     }
 }

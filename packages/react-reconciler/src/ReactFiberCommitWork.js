@@ -1086,6 +1086,11 @@ function commitDeletion(current: Fiber): void {
 }
 
 function commitWork(current: Fiber | null, finishedWork: Fiber): void {
+    console.log('fn commitWork(current: Fiber | null, finishedWork: Fiber)');
+    console.log('current : ');
+    console.log('%o', current);
+    console.log('finishedWork: ');
+    console.log('%o', finishedWork);
   if (!supportsMutation) {
     switch (finishedWork.tag) {
       case FunctionComponent:

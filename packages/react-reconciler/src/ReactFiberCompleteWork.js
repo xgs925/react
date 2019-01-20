@@ -542,6 +542,11 @@ function completeWork(
   workInProgress: Fiber,
   renderExpirationTime: ExpirationTime,
 ): Fiber | null {
+    console.log('fn completeWork');
+    console.log('current: ');
+    console.log('%o', current);
+    console.log('workInProgress: ');
+    console.log('%o', workInProgress);
   const newProps = workInProgress.pendingProps;
 
   switch (workInProgress.tag) {

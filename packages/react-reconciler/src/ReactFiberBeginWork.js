@@ -1675,6 +1675,13 @@ function beginWork(
   workInProgress: Fiber,
   renderExpirationTime: ExpirationTime,
 ): Fiber | null {
+    console.log('fn beginWork');
+    console.log('current: ');
+    console.log('%o', current);
+    console.log('workInProgress: ');
+    console.log('%o', workInProgress);
+    console.log('renderExpirationTime: ');
+    console.log('%o', renderExpirationTime);
   const updateExpirationTime = workInProgress.expirationTime;
 
   if (current !== null) {

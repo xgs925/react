@@ -390,6 +390,8 @@ function resetStack() {
 }
 
 function commitAllHostEffects() {
+    console.log('fn commitAllHostEffects');
+
   while (nextEffect !== null) {
     if (__DEV__) {
       setCurrentFiber(nextEffect);
@@ -938,6 +940,9 @@ function resetChildExpirationTime(
 }
 
 function completeUnitOfWork(workInProgress: Fiber): Fiber | null {
+    console.log('fn completeUnitOfWork(workInProgress: Fiber)');
+    console.log('workInProgress');
+    console.log('%o', workInProgress);
   // Attempt to complete the current unit of work, then move to the
   // next sibling. If there are no more siblings, return to the
   // parent fiber.
@@ -1189,6 +1194,7 @@ function performUnitOfWork(workInProgress: Fiber): Fiber | null {
 
 function workLoop(isYieldy) {
   console.log('fn workLoop(isYieldy)');
+  console.log('isYieldy: ' + isYieldy);
   if (!isYieldy) {
     // Flush work without yielding
     while (nextUnitOfWork !== null) {

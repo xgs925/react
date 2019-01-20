@@ -647,7 +647,7 @@ async function buildEverything() {
 
   for (const dir of BUILD) {
     // await asyncRimRaf(`../react-demo/node_modules/${dir}`);
-    await asyncCopyTo(`./build/node_modules/${dir}`, `../react-demo/node_modules/${dir}`)
+    await asyncCopyTo(`./build/node_modules/${dir}`, `./demo/node_modules/${dir}`)
   }
 }
 
